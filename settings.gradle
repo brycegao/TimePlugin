@@ -1,1 +1,1 @@
-include ':app', ':tpannotation'
+include ':app', ':tpannotation', ':buildSrc'
