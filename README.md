@@ -7,19 +7,17 @@
  
 在app模块build.gradle
   implementation 'com.brycegao.tpannotation:tpannotation:1.0.2'
-apply plugin: 'timeplugin'
+和apply plugin: 'timeplugin'
 
 在类或方法前添加注解DebugLogger
+<pre>
 @DebugLogger
 public class MainActivity extends Activity {
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
     showMsg(1, "this is test");
-
     findViewById(R.id.btn_next).setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View view) {
         Intent intent = new Intent(MainActivity.this, SecondActivity.class);
@@ -27,7 +25,6 @@ public class MainActivity extends Activity {
       }
     });
   }
-
   private void showMsg(int i, String msg) {
     try {
       Thread.sleep(100); //仅仅为了测试
@@ -35,12 +32,11 @@ public class MainActivity extends Activity {
       ex.printStackTrace();
     }
   }
-
   @Override public void onWindowFocusChanged(boolean hasFocus) {
     super.onWindowFocusChanged(hasFocus);
   }
 }
-
+</pre>
 输出：
 09-21 19:20:21.987  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onWindowFocusChanged耗时：0毫秒
 09-21 19:20:21.987  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onWindowFocusChanged参数：hasFocus:true
