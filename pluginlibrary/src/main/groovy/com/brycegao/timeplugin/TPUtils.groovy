@@ -36,102 +36,108 @@ class TPUtils {
     if (dir.isDirectory()) {
       dir.eachFileRecurse { File file ->
         String filePath = file.absolutePath
-
-        //跳过as生成的中间类
-        if (filePath.endsWith(".class") && !filePath.contains('R$') &&
-            !filePath.contains('R.class') &&
-            !filePath.contains('R2.class') &&
-            !filePath.contains("BuildConfig.class")) {
-          //请注意， debug或release方式编译的中间目录不同
-          String classPath
-          String[] classPathWindowsDebug = filePath.split("\\\\debug\\\\")  //windows格式
-          String[] classPathMacDebug     = filePath.split("/debug/")    //mac格式
-          String[] classPathWindowsRelease = filePath.split("\\\\release\\\\")  //windows格式
-          String[] classPathMacRelease     = filePath.split("/release/")    //mac格式
-          if (classPathWindowsDebug != null && classPathWindowsDebug.length == 2) {
-            classPath = classPathWindowsDebug[1]
-          }
-          if (classPathMacDebug != null && classPathMacDebug.length == 2) {
-            classPath = classPathMacDebug[1]
-          }
-          if (classPathWindowsRelease != null && classPathWindowsRelease.length == 2) {
-            classPath = classPathWindowsRelease[1]
-          }
-          if (classPathMacRelease != null && classPathMacRelease.length == 2) {
-            classPath = classPathMacRelease[1]
-          }
-
-          //获取 .class 前的类名
-          println("类名" + classPath)
-          String className = classPath.substring(0, classPath.length() - 6)
-              .replace('\\', '.')
-              .replace('/', '.')
-
-          //配置是否显示日志
-          if (config.showLog) {
-            println("className:" + className)
-          }
-
-          CtClass ctClass = sPool.getCtClass(className)
-          if (ctClass.isFrozen()) {
-            ctClass.defrost()
-          }
-
-          def classAllInject = false
-          if (ctClass.getAnnotations() != null) {
-            for (int i=0; i<ctClass.getAnnotations().size(); i++) {
-              if (ctClass.getAnnotations()[i].toString().contains(ANNO_TAG)) {
-                classAllInject = true
-                println("类注解")
-              }
-              println(ctClass.getAnnotations()[i])
+        CtClass ctClass
+        try {
+          //跳过as生成的中间类
+          if (filePath.endsWith(".class") && !filePath.contains('R$') &&
+              !filePath.contains('R.class') &&
+              !filePath.contains('R2.class') &&
+              !filePath.contains("BuildConfig.class")) {
+            //请注意， debug或release方式编译的中间目录不同
+            String classPath
+            String[] classPathWindowsDebug = filePath.split("\\\\debug\\\\")
+            //windows格式
+            String[] classPathMacDebug = filePath.split("/debug/")
+            //mac格式
+            String[] classPathWindowsRelease = filePath.split("\\\\release\\\\")
+            //windows格式
+            String[] classPathMacRelease = filePath.split("/release/")
+            //mac格式
+            if (classPathWindowsDebug != null && classPathWindowsDebug.length == 2) {
+              classPath = classPathWindowsDebug[1]
             }
-          }
-
-          CtMethod[] methods = ctClass.getDeclaredMethods()
-          for (CtMethod method:methods) {
-            //跳过空函数体或者native方法
-            println("遍历方法~~~~~~~~~~")
-            if (method.isEmpty() || Modifier.isNative(method.getModifiers())) {
-              println("遍历方法退出")
-              continue
+            if (classPathMacDebug != null && classPathMacDebug.length == 2) {
+              classPath = classPathMacDebug[1]
+            }
+            if (classPathWindowsRelease != null && classPathWindowsRelease.length == 2) {
+              classPath = classPathWindowsRelease[1]
+            }
+            if (classPathMacRelease != null && classPathMacRelease.length == 2) {
+              classPath = classPathMacRelease[1]
             }
 
-            println("遍历方法继续")
-            if (classAllInject) {
-              if (ctClass.isFrozen()) {
-                ctClass.defrost()
-              }
-              println(className + "， isfrozen：" + ctClass.isFrozen())
-              injectMethodTimeCode(method, className)  //如果在类上面添加注解则所有方法要注入
-            } else {
-              def methodInject = false
-              //判断方法的注解
-              Object[] objects = method.getAvailableAnnotations()
-              if (objects != null && objects.length > 0) {
-                for (java.lang.Object object : objects) {
-                  if (object.toString().contains(ANNO_TAG)) {
-                    methodInject = true
-                    break
-                  }
+            //获取 .class 前的类名
+            //println("类名" + classPath)
+            String className = classPath.substring(0, classPath.length() - 6)
+                .replace('\\', '.')
+                .replace('/', '.')
+
+            //配置是否显示日志
+            if (config.showLog) {
+              //println("className:" + className)
+            }
+
+            ctClass = sPool.getCtClass(className)
+            if (ctClass.isFrozen()) {
+              ctClass.defrost()
+            }
+
+            def classAllInject = false
+            if (ctClass.getAnnotations() != null) {
+              for (int i = 0; i < ctClass.getAnnotations().size(); i++) {
+                if (ctClass.getAnnotations()[i].toString().contains(ANNO_TAG)) {
+                  classAllInject = true
+                  println("类注解")
                 }
+                println(ctClass.getAnnotations()[i])
+              }
+            }
+
+            CtMethod[] methods = ctClass.getDeclaredMethods()
+            for (CtMethod method : methods) {
+              //跳过空函数体或者native方法
+              //println("遍历方法~~~~~~~~~~")
+              if (method.isEmpty() || Modifier.isNative(method.getModifiers())) {
+                println("遍历方法退出")
+                continue
               }
 
-              if (methodInject) {
-                //注入代码
+              //println("遍历方法继续")
+              if (classAllInject) {
                 if (ctClass.isFrozen()) {
                   ctClass.defrost()
                 }
-                println(className + "， isfrozen：" + ctClass.isFrozen())
-                injectMethodTimeCode(method, className)
-              }
-            }
-            ctClass.writeFile(path)
-          }
+                injectMethodTimeCode(method, className) //如果在类上面添加注解则所有方法要注入
+              } else {
+                def methodInject = false
+                //判断方法的注解
+                Object[] objects = method.getAvailableAnnotations()
+                if (objects != null && objects.length > 0) {
+                  for (java.lang.Object object : objects) {
+                    if (object.toString().contains(ANNO_TAG)) {
+                      methodInject = true
+                      break
+                    }
+                  }
+                }
 
-          ctClass.detach()  //释放资源
+                if (methodInject) {
+                  //注入代码
+                  if (ctClass.isFrozen()) {
+                    ctClass.defrost()
+                  }
+                  injectMethodTimeCode(method, className)
+                }
+              }
+              ctClass.writeFile(path)
+            }
+          }
+        } catch (Exception ex) {
         }
 
+        if (ctClass != null) {
+          ctClass.detach()  //释放资源
+        }
       }
     }
   }
@@ -157,7 +163,7 @@ class TPUtils {
    * @param method
    */
   static void injectMethodTimeCode(CtMethod method, String className) {
-    println("injectMethodTimeCode注入代码~~~~~~~")
+    println("TimePlugin injectMethodTimeCode注入代码~~~~~~~")
 
     //所有函数参数名称
     List<String> paramNames = new ArrayList<>()

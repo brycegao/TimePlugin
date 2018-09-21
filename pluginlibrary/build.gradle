@@ -34,7 +34,9 @@ publish {
   userOrg = ''
   groupId = 'com.brycegao.timeplugin'
   artifactId = 'timeplugin'
-  publishVersion = '1.0.0'
+  publishVersion = '1.0.4'
   desc = 'this is timeplugin, show method time and params'
   website = 'https://github.com/brycegao/TimePlugin'
 }
+
+// ./gradlew clean build bintrayUpload -PbintrayUser=brycegmail -PbintrayKey=0601bbf0fa241a701e987d38c95d35c4a5a6286b -PdryRun=false
