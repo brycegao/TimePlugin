@@ -1,6 +1,8 @@
 # TimePlugin
 实现JakeWharton的hugo功能，即打印安卓函数执行时间和参数值
 
+博客介绍：https://www.jianshu.com/p/8efb84bffeac
+
 用法参考demo工程
 在工程build.gradle添加
  classpath 'com.brycegao.timeplugin:timeplugin:1.0.4'
@@ -37,7 +39,9 @@ public class MainActivity extends Activity {
   }
 }
 </pre>
+
 输出：
+<pre>
 09-21 19:20:21.987  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onWindowFocusChanged耗时：0毫秒
 09-21 19:20:21.987  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onWindowFocusChanged参数：hasFocus:true
 09-21 19:20:22.231  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onWindowFocusChanged耗时：0毫秒
@@ -48,7 +52,7 @@ public class MainActivity extends Activity {
 09-21 19:20:27.180  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onCreate参数：savedInstanceState:null
 09-21 19:20:27.281  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onWindowFocusChanged耗时：0毫秒
 09-21 19:20:27.281  3308  3308 D MethodTime: com.byrcegao.tpdemo.MainActivity:onWindowFocusChanged参数：hasFocus:true
-
+</pre>
 
 
 
