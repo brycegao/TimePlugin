@@ -34,7 +34,7 @@ publish {
   userOrg = ''
   groupId = 'com.brycegao.timeplugin'
   artifactId = 'timeplugin'
-  publishVersion = '1.0.4'
+  publishVersion = '1.0.5'
   desc = 'this is timeplugin, show method time and params'
   website = 'https://github.com/brycegao/TimePlugin'
 }

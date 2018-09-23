@@ -87,31 +87,33 @@ class TPUtils {
               for (int i = 0; i < ctClass.getAnnotations().size(); i++) {
                 if (ctClass.getAnnotations()[i].toString().contains(ANNO_TAG)) {
                   classAllInject = true
-                  println("类注解")
                 }
-                println(ctClass.getAnnotations()[i])
               }
             }
 
             CtMethod[] methods = ctClass.getDeclaredMethods()
             for (CtMethod method : methods) {
               //跳过空函数体或者native方法
-              //println("遍历方法~~~~~~~~~~")
               if (method.isEmpty() || Modifier.isNative(method.getModifiers())) {
-                println("遍历方法退出")
                 continue
               }
 
-              //println("遍历方法继续")
               if (classAllInject) {
                 if (ctClass.isFrozen()) {
                   ctClass.defrost()
                 }
                 injectMethodTimeCode(method, className) //如果在类上面添加注解则所有方法要注入
+
+                ctClass.writeFile(path)
               } else {
                 def methodInject = false
                 //判断方法的注解
-                Object[] objects = method.getAvailableAnnotations()
+                Object[] objects
+                try {
+                  objects = method.getAvailableAnnotations()
+                } catch (NoClassDefFoundError ex) {
+                  println("找不到注解类信息~~~~~~~~~~~~~~~")
+                }
                 if (objects != null && objects.length > 0) {
                   for (java.lang.Object object : objects) {
                     if (object.toString().contains(ANNO_TAG)) {
@@ -127,16 +129,17 @@ class TPUtils {
                     ctClass.defrost()
                   }
                   injectMethodTimeCode(method, className)
+
+                  ctClass.writeFile(path)
                 }
               }
-              ctClass.writeFile(path)
             }
           }
         } catch (Exception ex) {
         }
 
         if (ctClass != null) {
-          ctClass.detach()  //释放资源
+          ctClass.detach()
         }
       }
     }
@@ -163,7 +166,9 @@ class TPUtils {
    * @param method
    */
   static void injectMethodTimeCode(CtMethod method, String className) {
-    println("TimePlugin injectMethodTimeCode注入代码~~~~~~~")
+    if (method.methodInfo.name.contains("access\$")) {
+      return    //不注解access$方法
+    }
 
     //所有函数参数名称
     List<String> paramNames = new ArrayList<>()
@@ -176,7 +181,6 @@ class TPUtils {
       int pos = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
       for (int i = 0; i <= len; i++) {
         try {
-          println("参数名称：" + attr.variableName(i))
           if (!attr.variableName(i + pos).equals("this")) {
             paramNames.add(attr.variableName(i + pos))
           }
