@@ -5,10 +5,10 @@
 
 用法参考demo工程
 在工程build.gradle添加
- classpath 'com.brycegao.timeplugin:timeplugin:1.0.4'
+ classpath 'com.brycegao.timeplugin:timeplugin:1.0.5'
  
 在app模块build.gradle
-  implementation 'com.brycegao.tpannotation:tpannotation:1.0.2'
+  api 'com.brycegao.tpannotation:tpannotation:1.0.2'
 和apply plugin: 'timeplugin'
 
 在类或方法前添加注解DebugLogger
